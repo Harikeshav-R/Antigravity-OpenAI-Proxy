@@ -9,6 +9,12 @@ from app.translator.egress import parse_cca_chunk
 
 logger = logging.getLogger(__name__)
 
+class UpstreamQuotaExhaustedError(RuntimeError):
+    def __init__(self, message: str, status_code: int = 429):
+        super().__init__(message)
+        self.message = message
+        self.status_code = status_code
+
 class CloudCodeAssistClient:
     def __init__(self, config: ProxyConfig):
         self.config = config
@@ -78,6 +84,23 @@ class CloudCodeAssistClient:
                                 err_text = await resp.aread()
                                 last_error = RuntimeError(f"Endpoint {endpoint_url} returned {resp.status_code}: {err_text.decode()}")
                                 break  # Fail over to next endpoint
+
+                            if resp.status_code == 429:
+                                err_text = await resp.aread()
+                                raise UpstreamQuotaExhaustedError(
+                                    f"Google Cloud Code Assist 429: {err_text.decode()}",
+                                    status_code=429,
+                                )
+
+                            if resp.status_code == 403:
+                                err_text = await resp.aread()
+                                body_str = err_text.decode()
+                                if "RESOURCE_EXHAUSTED" in body_str or "quota" in body_str.lower():
+                                    raise UpstreamQuotaExhaustedError(
+                                        f"Google Cloud Code Assist quota exceeded (403): {body_str}",
+                                        status_code=403,
+                                    )
+                                raise RuntimeError(f"Cloud Code Assist returned 403: {body_str}")
 
                             if resp.status_code != 200:
                                 err_text = await resp.aread()
