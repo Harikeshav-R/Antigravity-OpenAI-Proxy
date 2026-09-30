@@ -28,6 +28,12 @@ def test_wire_model_profile_gemini_pro():
     assert profile.model_enum == "MODEL_PLACEHOLDER_M16"
     assert profile.max_output_tokens == 65535
 
+def test_wire_model_profile_gemini_31_pro():
+    profile = get_wire_model_profile("gemini-3.1-pro")
+    assert profile.wire_model_id in ("gemini-3.1-pro", "gemini-pro-agent")
+    assert profile.is_claude is False
+    assert profile.max_output_tokens == 65535
+
 def test_wire_model_profile_gemini_25():
     profile = get_wire_model_profile("gemini-2.5-flash")
     assert profile.wire_model_id == "gemini-2.5-flash"

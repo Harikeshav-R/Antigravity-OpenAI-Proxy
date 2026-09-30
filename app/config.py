@@ -15,8 +15,15 @@ ANTIGRAVITY_PROFILES: Dict[str, WireModelProfile] = {
     "claude-opus-4-6": WireModelProfile("claude-opus-4-6-thinking", is_claude=True, max_output_tokens=64000),
     "gemini-3.8-flash": WireModelProfile("gemini-3-flash-agent", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M132"),
     "gemini-3-flash": WireModelProfile("gemini-3-flash-agent", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M132"),
+    "gemini-3.1-pro": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),
     "gemini-3-pro": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),
+    "gemini-2.5-pro": WireModelProfile("gemini-2.5-pro", is_claude=False, max_output_tokens=65536),
     "gemini-2.5-flash": WireModelProfile("gemini-2.5-flash", is_claude=False, max_output_tokens=65536),
+    "gemini-2.0-flash": WireModelProfile("gemini-2.0-flash", is_claude=False, max_output_tokens=65536),
+    "gemini-2.0-flash-lite": WireModelProfile("gemini-2.0-flash-lite", is_claude=False, max_output_tokens=65536),
+    "gemini-2.0-pro-exp": WireModelProfile("gemini-2.0-pro-exp", is_claude=False, max_output_tokens=65536),
+    "gemini-1.5-pro": WireModelProfile("gemini-1.5-pro", is_claude=False, max_output_tokens=65536),
+    "gemini-1.5-flash": WireModelProfile("gemini-1.5-flash", is_claude=False, max_output_tokens=65536),
 }
 
 def get_wire_model_profile(model_name: str) -> WireModelProfile:
