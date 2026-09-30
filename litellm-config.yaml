@@ -1,0 +1,25 @@
+model_list:
+  - model_name: claude-3.7-sonnet
+    litellm_params:
+      model: openai/claude-sonnet-4-6
+      api_base: http://antigravity-proxy:8000/v1
+      api_key: "dummy"
+  - model_name: claude-3.7-sonnet
+    litellm_params:
+      model: openrouter/anthropic/claude-3.7-sonnet
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: gemini-2.5-flash
+    litellm_params:
+      model: openai/gemini-2.5-flash
+      api_base: http://antigravity-proxy:8000/v1
+      api_key: "dummy"
+  - model_name: gemini-2.5-flash
+    litellm_params:
+      model: openrouter/google/gemini-2.5-flash
+      api_key: os.environ/OPENROUTER_API_KEY
+
+router_settings:
+  routing_strategy: latency-based-routing
+  allowed_fails: 2
+  cooldown_time: 300

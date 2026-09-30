@@ -151,6 +151,8 @@ activemq-data/
 .env
 .envrc
 .venv
+.superpowers/
+.omp/
 env/
 venv/
 ENV/

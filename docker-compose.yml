@@ -1,0 +1,26 @@
+services:
+  antigravity-proxy:
+    build: .
+    container_name: antigravity-proxy
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    environment:
+      - CREDENTIALS_PATH=/data/credentials.json
+      - PORT=8000
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: litellm-load-balancer
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./litellm-config.yaml:/app/config.yaml
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    depends_on:
+      - antigravity-proxy
