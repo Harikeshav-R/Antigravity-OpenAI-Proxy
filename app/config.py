@@ -22,21 +22,44 @@ class WireModelProfile:
     model_enum: Optional[str] = None
 
 ANTIGRAVITY_PROFILES: Dict[str, WireModelProfile] = {
+    # Claude models (Fixed thinking budget)
     "claude-3.7-sonnet": WireModelProfile("claude-sonnet-4-6", is_claude=True, max_output_tokens=64000),
     "claude-3-7-sonnet": WireModelProfile("claude-sonnet-4-6", is_claude=True, max_output_tokens=64000),
     "claude-sonnet-4-6": WireModelProfile("claude-sonnet-4-6", is_claude=True, max_output_tokens=64000),
     "claude-sonnet-4.6": WireModelProfile("claude-sonnet-4-6", is_claude=True, max_output_tokens=64000),
     "claude-opus-4-6": WireModelProfile("claude-opus-4-6-thinking", is_claude=True, max_output_tokens=64000),
     "claude-opus-4.6": WireModelProfile("claude-opus-4-6-thinking", is_claude=True, max_output_tokens=64000),
+
+    # Gemini 3.8 Flash (Effort variants)
     "gemini-3.8-flash": WireModelProfile("gemini-3.8-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M318"),
     "gemini-3-flash": WireModelProfile("gemini-3.8-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M318"),
     "gemini-3.8-flash-high": WireModelProfile("gemini-3.8-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M318"),
     "gemini-3.8-flash-medium": WireModelProfile("gemini-3.8-flash-medium", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M319"),
     "gemini-3.8-flash-low": WireModelProfile("gemini-3.8-flash-low", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M320"),
+
+    # Gemini 3.7 Flash (Effort variants)
     "gemini-3.7-flash": WireModelProfile("gemini-3.7-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M298"),
     "gemini-3.7-flash-high": WireModelProfile("gemini-3.7-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M298"),
+    "gemini-3.7-flash-medium": WireModelProfile("gemini-3.7-flash-medium", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M299"),
+    "gemini-3.7-flash-low": WireModelProfile("gemini-3.7-flash-low", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M300"),
+
+    # Gemini 3.6 Flash (Effort variants)
+    "gemini-3.6-flash": WireModelProfile("gemini-3.6-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M71"),
+    "gemini-3.6-flash-high": WireModelProfile("gemini-3.6-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M71"),
+    "gemini-3.6-flash-medium": WireModelProfile("gemini-3.6-flash-medium", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M72"),
+    "gemini-3.6-flash-low": WireModelProfile("gemini-3.6-flash-low", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M73"),
+
+    # Gemini 3.1 Pro (Effort variants)
     "gemini-3.1-pro": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),
     "gemini-3-pro": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),
+    "gemini-3.1-pro-high": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),
+    "gemini-3.1-pro-low": WireModelProfile("gemini-3.1-pro-low", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M36"),
+
+    # GPT-OSS (Fixed thinking budget)
+    "gpt-oss-120b": WireModelProfile("gpt-oss-120b-medium", is_claude=False, max_output_tokens=32768),
+    "gpt-oss-120b-medium": WireModelProfile("gpt-oss-120b-medium", is_claude=False, max_output_tokens=32768),
+
+    # Legacy / Flash Lite
     "gemini-2.5-pro": WireModelProfile("gemini-2.5-pro", is_claude=False, max_output_tokens=65536),
     "gemini-2.5-flash": WireModelProfile("gemini-2.5-flash", is_claude=False, max_output_tokens=65536),
     "gemini-2.0-flash": WireModelProfile("gemini-2.0-flash", is_claude=False, max_output_tokens=65536),
@@ -46,8 +69,12 @@ ANTIGRAVITY_PROFILES: Dict[str, WireModelProfile] = {
     "gemini-1.5-flash": WireModelProfile("gemini-1.5-flash", is_claude=False, max_output_tokens=65536),
 }
 
-def get_wire_model_profile(model_name: str) -> WireModelProfile:
+def get_wire_model_profile(model_name: str, reasoning_effort: Optional[str] = None) -> WireModelProfile:
     norm = model_name.lower().replace("openai/", "").replace("google/", "").replace("anthropic/", "")
+    if reasoning_effort:
+        effort_key = f"{norm}-{reasoning_effort.strip().lower()}"
+        if effort_key in ANTIGRAVITY_PROFILES:
+            return ANTIGRAVITY_PROFILES[effort_key]
     if norm in ANTIGRAVITY_PROFILES:
         return ANTIGRAVITY_PROFILES[norm]
     is_claude = "claude" in norm

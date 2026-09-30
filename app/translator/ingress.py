@@ -16,7 +16,8 @@ def random_signed_decimal_session_id() -> str:
 
 def translate_openai_request(req: Dict[str, Any], project_id: str) -> Dict[str, Any]:
     model_name = req.get("model", "claude-3.7-sonnet")
-    profile = get_wire_model_profile(model_name)
+    effort = req.get("reasoning_effort")
+    profile = get_wire_model_profile(model_name, reasoning_effort=effort)
 
     contents: List[Dict[str, Any]] = []
     system_parts: List[Dict[str, str]] = []

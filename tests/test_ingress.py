@@ -109,3 +109,13 @@ def test_translate_max_completion_tokens_support():
     cca = translate_openai_request(req, project_id="test-proj")
     assert cca["request"]["generationConfig"]["maxOutputTokens"] == 500
     assert cca["request"]["labels"]["model_enum"] == "MODEL_PLACEHOLDER_M318"
+
+def test_translate_reasoning_effort_support():
+    req = {
+        "model": "gemini-3.8-flash",
+        "reasoning_effort": "low",
+        "messages": [{"role": "user", "content": "hi"}]
+    }
+    cca = translate_openai_request(req, project_id="test-proj")
+    assert cca["model"] == "gemini-3.8-flash-low"
+    assert cca["request"]["labels"]["model_enum"] == "MODEL_PLACEHOLDER_M320"

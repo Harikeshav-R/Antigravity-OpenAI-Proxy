@@ -66,3 +66,32 @@ def test_config_pool_strategy_env(monkeypatch):
     monkeypatch.setenv("POOL_STRATEGY", "ROUND_ROBIN")
     config = ProxyConfig()
     assert config.pool_strategy == "round_robin"
+
+def test_wire_model_profile_reasoning_effort_mapping():
+    # Low effort
+    p_low = get_wire_model_profile("gemini-3.8-flash", reasoning_effort="low")
+    assert p_low.wire_model_id == "gemini-3.8-flash-low"
+    assert p_low.model_enum == "MODEL_PLACEHOLDER_M320"
+
+    # Medium effort
+    p_med = get_wire_model_profile("gemini-3.8-flash", reasoning_effort="medium")
+    assert p_med.wire_model_id == "gemini-3.8-flash-medium"
+    assert p_med.model_enum == "MODEL_PLACEHOLDER_M319"
+
+    # High effort
+    p_high = get_wire_model_profile("gemini-3.8-flash", reasoning_effort="high")
+    assert p_high.wire_model_id == "gemini-3.8-flash-high"
+    assert p_high.model_enum == "MODEL_PLACEHOLDER_M318"
+
+    # Gemini 3.1 Pro low effort
+    p_pro_low = get_wire_model_profile("gemini-3.1-pro", reasoning_effort="low")
+    assert p_pro_low.wire_model_id == "gemini-3.1-pro-low"
+    assert p_pro_low.model_enum == "MODEL_PLACEHOLDER_M36"
+
+def test_wire_model_profile_gpt_oss_and_gemini_36():
+    p_gpt = get_wire_model_profile("gpt-oss-120b")
+    assert p_gpt.wire_model_id == "gpt-oss-120b-medium"
+
+    p_36 = get_wire_model_profile("gemini-3.6-flash")
+    assert p_36.wire_model_id == "gemini-3.6-flash-high"
+    assert p_36.model_enum == "MODEL_PLACEHOLDER_M71"
