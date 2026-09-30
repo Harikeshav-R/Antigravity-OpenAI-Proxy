@@ -30,3 +30,12 @@ def test_litellm_config_structure():
 def test_dockerfile_and_compose_exist():
     assert os.path.exists("Dockerfile")
     assert os.path.exists("docker-compose.yml")
+
+def test_uv_migration_integrity():
+    assert os.path.exists("pyproject.toml")
+    assert os.path.exists("uv.lock")
+    assert not os.path.exists("requirements.txt")
+    with open("Dockerfile", "r", encoding="utf-8") as f:
+        dockerfile = f.read()
+    assert "uv sync" in dockerfile
+    assert "ghcr.io/astral-sh/uv" in dockerfile

@@ -1,3 +1,24 @@
+[project]
+name = "antigravity-openai-proxy"
+version = "0.1.0"
+description = "High-performance OpenAI-compatible proxy for Google Cloud Code Assist (Antigravity)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "httpx>=0.28.0",
+    "pydantic>=2.10.0",
+    "pyyaml>=6.0.2",
+    "python-dotenv>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
