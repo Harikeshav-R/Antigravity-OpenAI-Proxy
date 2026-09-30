@@ -108,4 +108,4 @@ def test_translate_max_completion_tokens_support():
     }
     cca = translate_openai_request(req, project_id="test-proj")
     assert cca["request"]["generationConfig"]["maxOutputTokens"] == 500
-    assert cca["request"]["labels"]["model_enum"] == "MODEL_PLACEHOLDER_M132"
+    assert cca["request"]["labels"]["model_enum"] == "MODEL_PLACEHOLDER_M318"

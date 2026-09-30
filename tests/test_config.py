@@ -24,11 +24,10 @@ def test_wire_model_profile_claude_sonnet_dot():
     assert profile.is_claude is True
 def test_wire_model_profile_gemini_flash():
     profile = get_wire_model_profile("gemini-3.8-flash")
-    assert profile.wire_model_id == "gemini-3-flash-agent"
+    assert profile.wire_model_id == "gemini-3.8-flash-high"
     assert profile.is_claude is False
-    assert profile.model_enum == "MODEL_PLACEHOLDER_M132"
+    assert profile.model_enum == "MODEL_PLACEHOLDER_M318"
     assert profile.max_output_tokens == 65536
-
 def test_wire_model_profile_gemini_pro():
     profile = get_wire_model_profile("gemini-3-pro")
     assert profile.wire_model_id == "gemini-pro-agent"
@@ -52,7 +51,7 @@ def test_wire_model_profile_prefix_stripping():
     profile = get_wire_model_profile("openai/claude-3.7-sonnet")
     assert profile.wire_model_id == "claude-sonnet-4-6"
     profile2 = get_wire_model_profile("google/gemini-3.8-flash")
-    assert profile2.wire_model_id == "gemini-3-flash-agent"
+    assert profile2.wire_model_id == "gemini-3.8-flash-high"
 
 def test_default_config_paths():
     config = ProxyConfig(credentials_path="/tmp/test_cred.json")
