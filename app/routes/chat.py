@@ -31,10 +31,12 @@ async def chat_completions(request: Request):
 
     body = await request.json()
     model_name = body.get("model", "claude-3.7-sonnet")
+    effort = body.get("reasoning_effort")
     stream = body.get("stream", False)
     chat_id = f"chatcmpl-{uuid.uuid4().hex}"
 
-    profile = get_wire_model_profile(model_name)
+    profile = get_wire_model_profile(model_name, reasoning_effort=effort)
+    logger.info("Handling chat completion: model=%s (wire=%s, enum=%s), effort=%s, stream=%s", model_name, profile.wire_model_id, profile.model_enum, effort, stream)
     tool_names = {t.get("function", {}).get("name", "") for t in body.get("tools", [])}
 
     pool = auth_manager.get_account_pool()
