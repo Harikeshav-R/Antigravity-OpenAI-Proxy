@@ -218,3 +218,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Antigravity Proxy Local Runtime
+.run/
+logs/
+credentials.json
+litellm-config.local.yaml
+data/
