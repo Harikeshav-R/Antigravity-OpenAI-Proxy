@@ -18,6 +18,11 @@ def test_litellm_config_structure():
     assert "gemini-1.5-pro" in models
     assert "gemini-1.5-flash" in models
 
+    # Verify no openrouter fallback entries exist
+    for entry in data["model_list"]:
+        target_model = entry.get("litellm_params", {}).get("model", "")
+        assert "openrouter" not in target_model, f"Found openrouter target: {target_model}"
+
 def test_dockerfile_and_compose_exist():
     assert os.path.exists("Dockerfile")
     assert os.path.exists("docker-compose.yml")

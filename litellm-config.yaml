@@ -4,120 +4,72 @@ model_list:
       model: openai/claude-sonnet-4-6
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: claude-3.7-sonnet
-    litellm_params:
-      model: openrouter/anthropic/claude-3.7-sonnet
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-3.8-flash
     litellm_params:
       model: openai/gemini-3.8-flash
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-3.8-flash
-    litellm_params:
-      model: openrouter/google/gemini-2.5-flash
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-3.1-pro
     litellm_params:
       model: openai/gemini-3.1-pro
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-3.1-pro
-    litellm_params:
-      model: openrouter/google/gemini-2.5-pro
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-3-pro
     litellm_params:
       model: openai/gemini-3-pro
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-3-pro
-    litellm_params:
-      model: openrouter/google/gemini-2.5-pro
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-3-flash
     litellm_params:
       model: openai/gemini-3-flash
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-3-flash
-    litellm_params:
-      model: openrouter/google/gemini-2.5-flash
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-2.5-pro
     litellm_params:
       model: openai/gemini-2.5-pro
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-2.5-pro
-    litellm_params:
-      model: openrouter/google/gemini-2.5-pro
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-2.5-flash
     litellm_params:
       model: openai/gemini-2.5-flash
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-2.5-flash
-    litellm_params:
-      model: openrouter/google/gemini-2.5-flash
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-2.0-flash
     litellm_params:
       model: openai/gemini-2.0-flash
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-2.0-flash
-    litellm_params:
-      model: openrouter/google/gemini-2.0-flash-001
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-2.0-flash-lite
     litellm_params:
       model: openai/gemini-2.0-flash-lite
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-2.0-flash-lite
-    litellm_params:
-      model: openrouter/google/gemini-2.0-flash-lite-001
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-2.0-pro-exp
     litellm_params:
       model: openai/gemini-2.0-pro-exp
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-2.0-pro-exp
-    litellm_params:
-      model: openrouter/google/gemini-2.0-pro-exp-02-05:free
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-1.5-pro
     litellm_params:
       model: openai/gemini-1.5-pro
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-1.5-pro
-    litellm_params:
-      model: openrouter/google/gemini-pro-1.5
-      api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: gemini-1.5-flash
     litellm_params:
       model: openai/gemini-1.5-flash
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
-  - model_name: gemini-1.5-flash
-    litellm_params:
-      model: openrouter/google/gemini-flash-1.5
-      api_key: os.environ/OPENROUTER_API_KEY
 
 router_settings:
   routing_strategy: latency-based-routing

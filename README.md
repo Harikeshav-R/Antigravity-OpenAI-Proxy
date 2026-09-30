@@ -278,8 +278,6 @@ services:
     volumes:
       - ./litellm-config.yaml:/app/config.yaml
     command: ["--config", "/app/config.yaml", "--port", "4000"]
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
     depends_on:
       - antigravity-proxy
 ```
