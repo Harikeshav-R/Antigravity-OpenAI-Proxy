@@ -11,8 +11,11 @@ class WireModelProfile:
 
 ANTIGRAVITY_PROFILES: Dict[str, WireModelProfile] = {
     "claude-3.7-sonnet": WireModelProfile("claude-sonnet-4-6", is_claude=True, max_output_tokens=64000),
+    "claude-3-7-sonnet": WireModelProfile("claude-sonnet-4-6", is_claude=True, max_output_tokens=64000),
     "claude-sonnet-4-6": WireModelProfile("claude-sonnet-4-6", is_claude=True, max_output_tokens=64000),
+    "claude-sonnet-4.6": WireModelProfile("claude-sonnet-4-6", is_claude=True, max_output_tokens=64000),
     "claude-opus-4-6": WireModelProfile("claude-opus-4-6-thinking", is_claude=True, max_output_tokens=64000),
+    "claude-opus-4.6": WireModelProfile("claude-opus-4-6-thinking", is_claude=True, max_output_tokens=64000),
     "gemini-3.8-flash": WireModelProfile("gemini-3-flash-agent", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M132"),
     "gemini-3-flash": WireModelProfile("gemini-3-flash-agent", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M132"),
     "gemini-3.1-pro": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),

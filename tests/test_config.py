@@ -14,6 +14,14 @@ def test_wire_model_profile_claude_opus():
     assert profile.is_claude is True
     assert profile.max_output_tokens == 64000
 
+    profile_dot = get_wire_model_profile("claude-opus-4.6")
+    assert profile_dot.wire_model_id == "claude-opus-4-6-thinking"
+    assert profile_dot.is_claude is True
+
+def test_wire_model_profile_claude_sonnet_dot():
+    profile = get_wire_model_profile("claude-sonnet-4.6")
+    assert profile.wire_model_id == "claude-sonnet-4-6"
+    assert profile.is_claude is True
 def test_wire_model_profile_gemini_flash():
     profile = get_wire_model_profile("gemini-3.8-flash")
     assert profile.wire_model_id == "gemini-3-flash-agent"

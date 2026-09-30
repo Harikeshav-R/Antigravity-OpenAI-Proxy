@@ -5,6 +5,30 @@ model_list:
       api_base: http://antigravity-proxy:8000/v1
       api_key: "dummy"
 
+  - model_name: claude-sonnet-4.6
+    litellm_params:
+      model: openai/claude-sonnet-4-6
+      api_base: http://antigravity-proxy:8000/v1
+      api_key: "dummy"
+
+  - model_name: claude-sonnet-4-6
+    litellm_params:
+      model: openai/claude-sonnet-4-6
+      api_base: http://antigravity-proxy:8000/v1
+      api_key: "dummy"
+
+  - model_name: claude-opus-4.6
+    litellm_params:
+      model: openai/claude-opus-4-6-thinking
+      api_base: http://antigravity-proxy:8000/v1
+      api_key: "dummy"
+
+  - model_name: claude-opus-4-6
+    litellm_params:
+      model: openai/claude-opus-4-6-thinking
+      api_base: http://antigravity-proxy:8000/v1
+      api_key: "dummy"
+
   - model_name: gemini-3.8-flash
     litellm_params:
       model: openai/gemini-3.8-flash

@@ -8,6 +8,10 @@ def test_litellm_config_structure():
     assert "model_list" in data
     models = [m["model_name"] for m in data["model_list"]]
     assert "claude-3.7-sonnet" in models
+    assert "claude-sonnet-4.6" in models
+    assert "claude-sonnet-4-6" in models
+    assert "claude-opus-4.6" in models
+    assert "claude-opus-4-6" in models
     assert "gemini-3.8-flash" in models
     assert "gemini-3.1-pro" in models
     assert "gemini-3-pro" in models
