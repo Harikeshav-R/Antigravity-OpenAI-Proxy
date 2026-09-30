@@ -137,19 +137,44 @@ def parse_project_id_from_load_code_assist(payload: Dict[str, Any]) -> Optional[
     proj = payload.get("cloudaicompanionProject")
     return proj if proj and len(proj) > 0 else None
 
-async def discover_project_id(access_token: str, base_url: str = "https://daily-cloudcode-pa.googleapis.com") -> str:
-    url = f"{base_url}/v1internal:loadCodeAssist"
+async def discover_project_id(access_token: str, base_url: Optional[str] = None) -> str:
+    env_proj = os.getenv("ANTIGRAVITY_PROJECT_ID")
+    if env_proj:
+        return env_proj
+
+    primary = base_url or os.getenv("PRIMARY_ENDPOINT", "https://daily-cloudcode-pa.googleapis.com")
+    sandbox = os.getenv("SANDBOX_ENDPOINT", "https://daily-cloudcode-pa.sandbox.googleapis.com")
+    endpoints = list(dict.fromkeys([
+        primary,
+        sandbox,
+        "https://cloudcode-pa.googleapis.com",
+    ]))
+
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
         "User-Agent": "antigravity/hub/2.8.0 (aidev_client; os_type=darwin; arch=arm64; cl=963137146)",
     }
-    body = {"metadata": {"ideType": "ANTIGRAVITY"}}
+    payloads = [
+        {"metadata": {"ideType": "ANTIGRAVITY"}},
+        {"metadata": {"ide": "ANTIGRAVITY", "ideVersion": "0.1.0"}},
+        {},
+    ]
+
     async with httpx.AsyncClient() as client:
-        resp = await client.post(url, headers=headers, json=body, timeout=15.0)
-        resp.raise_for_status()
-        data = resp.json()
-        proj = parse_project_id_from_load_code_assist(data)
-        if not proj:
-            raise RuntimeError(f"Could not discover cloudaicompanionProject from loadCodeAssist: {data}")
-        return proj
+        for ep in endpoints:
+            for body in payloads:
+                url = f"{ep}/v1internal:loadCodeAssist"
+                try:
+                    resp = await client.post(url, headers=headers, json=body, timeout=5.0)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        proj = parse_project_id_from_load_code_assist(data)
+                        if proj:
+                            logger.info("Discovered companion project %s from %s", proj, url)
+                            return proj
+                except Exception as err:
+                    logger.debug("Failed checking %s with body %s: %s", url, body, err)
+
+    logger.warning("Could not auto-discover companion project via loadCodeAssist (account may be consumer tier). Defaulting to 'default-cli-project'.")
+    return "default-cli-project"

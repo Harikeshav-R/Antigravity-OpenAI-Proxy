@@ -85,3 +85,41 @@ async def test_auth_manager_single_flight_refresh_concurrent(tmp_path, monkeypat
     saved = storage.load()
     assert saved is not None
     assert saved.access_token == "new_access_tok"
+
+@pytest.mark.asyncio
+async def test_discover_project_id_success(monkeypatch):
+    import httpx
+    from app.auth.oauth import discover_project_id
+    monkeypatch.delenv("ANTIGRAVITY_PROJECT_ID", raising=False)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"cloudaicompanionProject": "discovered-project-999"})
+
+    transport = httpx.MockTransport(handler)
+    orig = httpx.AsyncClient
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: orig(transport=transport))
+    proj = await discover_project_id("test_token")
+    assert proj == "discovered-project-999"
+
+@pytest.mark.asyncio
+async def test_discover_project_id_fallback_on_403(monkeypatch):
+    import httpx
+    from app.auth.oauth import discover_project_id
+    monkeypatch.delenv("ANTIGRAVITY_PROJECT_ID", raising=False)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(403, json={"error": {"code": 403, "message": "The caller does not have permission"}})
+
+    transport = httpx.MockTransport(handler)
+    orig = httpx.AsyncClient
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: orig(transport=transport))
+    proj = await discover_project_id("test_token")
+    # Should fall back cleanly without raising
+    assert proj == "default-cli-project"
+
+@pytest.mark.asyncio
+async def test_discover_project_id_prefers_env(monkeypatch):
+    from app.auth.oauth import discover_project_id
+    monkeypatch.setenv("ANTIGRAVITY_PROJECT_ID", "my-env-project")
+    proj = await discover_project_id("test_token")
+    assert proj == "my-env-project"
