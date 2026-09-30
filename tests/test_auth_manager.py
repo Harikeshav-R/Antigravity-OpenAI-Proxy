@@ -41,8 +41,10 @@ def test_get_authorization_url_with_client_id():
     from app.auth.oauth import get_authorization_url
     url = get_authorization_url("http://localhost:8000/oauth-callback", client_id="test-client-id")
     assert "client_id=test-client-id" in url
+    assert "client_id=client_id=" not in url
+    assert "redirect_uri=redirect_uri=" not in url
+    assert "response_type=response_type=" not in url
     assert "response_type=code" in url
-
 @pytest.mark.asyncio
 async def test_auth_manager_returns_valid_token(tmp_path):
     cred_file = tmp_path / "credentials.json"

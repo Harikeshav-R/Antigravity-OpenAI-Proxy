@@ -4,6 +4,18 @@ import time
 import httpx
 from typing import Tuple, Optional, Dict, Any
 
+try:
+    from dotenv import load_dotenv, find_dotenv, dotenv_values
+    env_file = find_dotenv(usecwd=True)
+    if env_file:
+        load_dotenv(env_file, override=False)
+        vals = dotenv_values(env_file)
+        for k in ("GOOGLE_CLIENT_ID", "google_client_id", "GOOGLE_CLIENT_SECRET", "google_client_secret"):
+            if vals.get(k) and not os.getenv(k):
+                os.environ[k] = vals[k]
+except ImportError:
+    pass
+
 logger = logging.getLogger(__name__)
 
 TOKEN_URL = "https://oauth2.googleapis.com/token"
@@ -49,8 +61,7 @@ def get_authorization_url(redirect_uri: str, state: Optional[str] = None, client
     }
     if state:
         params["state"] = state
-    query = "&".join(f"{k}={httpx.URL('', params={k: v}).query.decode()}" for k, v in params.items())
-    return f"{AUTH_URL}?{query}"
+    return str(httpx.URL(AUTH_URL, params=params))
 
 async def exchange_code_for_tokens(
     code: str,
