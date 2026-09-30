@@ -24,9 +24,19 @@ def test_parse_project_id_from_load_code_assist():
 def test_get_authorization_url_requires_client_id(monkeypatch):
     from app.auth.oauth import get_authorization_url
     monkeypatch.delenv("GOOGLE_CLIENT_ID", raising=False)
+    monkeypatch.delenv("google_client_id", raising=False)
     with pytest.raises(RuntimeError, match="GOOGLE_CLIENT_ID is required"):
         get_authorization_url("http://localhost:8000/oauth-callback")
 
+def test_get_oauth_client_credentials_case_insensitive(monkeypatch):
+    from app.auth.oauth import get_oauth_client_credentials
+    monkeypatch.delenv("GOOGLE_CLIENT_ID", raising=False)
+    monkeypatch.delenv("GOOGLE_CLIENT_SECRET", raising=False)
+    monkeypatch.setenv("google_client_id", "lowercase-client-id")
+    monkeypatch.setenv("google_client_secret", "lowercase-secret")
+    cid, sec = get_oauth_client_credentials()
+    assert cid == "lowercase-client-id"
+    assert sec == "lowercase-secret"
 def test_get_authorization_url_with_client_id():
     from app.auth.oauth import get_authorization_url
     url = get_authorization_url("http://localhost:8000/oauth-callback", client_id="test-client-id")

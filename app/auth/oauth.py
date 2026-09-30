@@ -20,8 +20,18 @@ def get_oauth_client_credentials(
     client_id: Optional[str] = None,
     client_secret: Optional[str] = None
 ) -> Tuple[str, str]:
-    cid = client_id or os.getenv("GOOGLE_CLIENT_ID", "")
-    sec = client_secret or os.getenv("GOOGLE_CLIENT_SECRET", "")
+    cid = (
+        client_id
+        or os.getenv("GOOGLE_CLIENT_ID")
+        or os.getenv("google_client_id")
+        or ""
+    ).strip()
+    sec = (
+        client_secret
+        or os.getenv("GOOGLE_CLIENT_SECRET")
+        or os.getenv("google_client_secret")
+        or ""
+    ).strip()
     return cid, sec
 
 def get_authorization_url(redirect_uri: str, state: Optional[str] = None, client_id: Optional[str] = None) -> str:

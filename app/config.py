@@ -2,6 +2,18 @@ from dataclasses import dataclass
 import os
 from typing import Optional, Dict
 
+try:
+    from dotenv import load_dotenv, find_dotenv, dotenv_values
+    env_file = find_dotenv(usecwd=True)
+    if env_file:
+        load_dotenv(env_file, override=False)
+        vals = dotenv_values(env_file)
+        for k, v in vals.items():
+            if v and not os.getenv(k):
+                os.environ[k] = v
+except ImportError:
+    pass
+
 @dataclass(frozen=True)
 class WireModelProfile:
     wire_model_id: str

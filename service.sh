@@ -14,6 +14,14 @@ set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd "$DIR"
+# Source .env if present
+if [ -f "$DIR/.env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    source "$DIR/.env"
+    set +a
+fi
+
 
 RUN_DIR="$DIR/.run"
 LOG_DIR="$DIR/logs"
