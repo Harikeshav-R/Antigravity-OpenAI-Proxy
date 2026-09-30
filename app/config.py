@@ -56,3 +56,4 @@ class ProxyConfig:
         self.sandbox_endpoint = os.getenv("SANDBOX_ENDPOINT", "https://daily-cloudcode-pa.sandbox.googleapis.com")
         self.port = int(os.getenv("PORT", "8000"))
         self.user_agent = "antigravity/hub/2.8.0 (aidev_client; os_type=darwin; arch=arm64; cl=963137146)"
+        self.pool_strategy = os.getenv("POOL_STRATEGY", "sticky").lower()

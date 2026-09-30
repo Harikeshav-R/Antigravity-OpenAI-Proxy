@@ -50,12 +50,33 @@ def main():
             except Exception:
                 pass
 
+    expiry_str = token_info.get("expiry")
+    expires_at = 0
+    if expiry_str:
+        try:
+            from datetime import datetime
+            dt = datetime.fromisoformat(expiry_str)
+            expires_at = int(dt.timestamp() * 1000)
+        except Exception:
+            expires_at = 0
+
+    project_id = os.getenv("ANTIGRAVITY_PROJECT_ID")
+    if not project_id and access_token:
+        try:
+            import asyncio
+            from app.auth.oauth import discover_project_id
+            project_id = asyncio.run(discover_project_id(access_token))
+        except Exception:
+            project_id = "default-cli-project"
+    elif not project_id:
+        project_id = "default-cli-project"
+
     new_cred = {
         "email": email,
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "project_id": os.getenv("ANTIGRAVITY_PROJECT_ID", "default-cli-project"),
-        "expires_at": 0
+        "project_id": project_id,
+        "expires_at": expires_at
     }
 
     # Load existing accounts to avoid overwriting multi-account pools

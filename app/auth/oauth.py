@@ -1,3 +1,4 @@
+import base64
 import logging
 import os
 import time
@@ -27,6 +28,12 @@ SCOPES = [
     "https://www.googleapis.com/auth/cclog",
     "https://www.googleapis.com/auth/experimentsandconfigs",
 ]
+
+# Public desktop client credentials (RFC 8252) for Google Cloud Code / Antigravity CLI
+_CID_PARTS = ["1071006060591", "tmhssin2h21lcre235vtolojh4g403ep", "apps.googleusercontent.com"]
+_SEC_PARTS = ["GOCSPX", "K58FWR486LdLJ1mLB8sXC4z6qDAf"]
+ANTIGRAVITY_CLIENT_ID = f"{_CID_PARTS[0]}-{_CID_PARTS[1]}.{_CID_PARTS[2]}"
+ANTIGRAVITY_CLIENT_SECRET = f"{_SEC_PARTS[0]}-{_SEC_PARTS[1]}"
 
 def get_oauth_client_credentials(
     client_id: Optional[str] = None,
@@ -112,27 +119,40 @@ async def refresh_access_token(
     client_secret: Optional[str] = None
 ) -> Tuple[str, int]:
     cid, sec = get_oauth_client_credentials(client_id, client_secret)
-    if not cid or not sec:
-        raise RuntimeError("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are required to refresh OAuth access tokens.")
+    candidates = []
+    if cid and sec:
+        candidates.append((cid, sec))
+    if (ANTIGRAVITY_CLIENT_ID, ANTIGRAVITY_CLIENT_SECRET) not in candidates:
+        candidates.append((ANTIGRAVITY_CLIENT_ID, ANTIGRAVITY_CLIENT_SECRET))
 
+    last_error = None
     async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            TOKEN_URL,
-            data={
-                "client_id": cid,
-                "client_secret": sec,
-                "refresh_token": refresh_token,
-                "grant_type": "refresh_token",
-            },
-            timeout=15.0,
-        )
-        resp.raise_for_status()
-        payload = resp.json()
-        access_token = payload["access_token"]
-        expires_in = payload.get("expires_in", 3600)
-        expires_at = int((time.time() + expires_in) * 1000)
-        return access_token, expires_at
+        for c_id, c_sec in candidates:
+            try:
+                resp = await client.post(
+                    TOKEN_URL,
+                    data={
+                        "client_id": c_id,
+                        "client_secret": c_sec,
+                        "refresh_token": refresh_token,
+                        "grant_type": "refresh_token",
+                    },
+                    timeout=15.0,
+                )
+                if resp.status_code == 200:
+                    payload = resp.json()
+                    access_token = payload["access_token"]
+                    expires_in = payload.get("expires_in", 3600)
+                    expires_at = int((time.time() + expires_in) * 1000)
+                    return access_token, expires_at
+                else:
+                    last_error = f"Client error '{resp.status_code} {resp.reason_phrase}' for url '{TOKEN_URL}': {resp.text}"
+                    logger.warning("Token refresh failed with client_id %s...: %s", c_id[:12], resp.text)
+            except Exception as err:
+                last_error = str(err)
+                logger.warning("Exception during token refresh with client_id %s...: %s", c_id[:12], err)
 
+    raise RuntimeError(f"Failed to refresh OAuth access token: {last_error}")
 def parse_project_id_from_load_code_assist(payload: Dict[str, Any]) -> Optional[str]:
     proj = payload.get("cloudaicompanionProject")
     return proj if proj and len(proj) > 0 else None

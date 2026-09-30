@@ -172,22 +172,30 @@ http://localhost:8000/login
 ```
 Click **"Sign in with Google"** and complete OAuth consent. The proxy exchanges the authorization code, calls `v1internal:loadCodeAssist` to discover your active `cloudaicompanionProject` ID, and persists credentials to `credentials.json`.
 ### Zero-OAuth CLI Import (macOS)
-If you are already logged into the **Antigravity CLI** on your Mac, you can skip web OAuth consent entirely. Antigravity stores OAuth session tokens in the macOS Keychain (`service: gemini`, `account: antigravity`).
+If you are already logged into the **Antigravity CLI** on your Mac, you can skip web OAuth consent entirely:
 
-Run the automated import helper:
-```bash
-.venv/bin/python scripts/import_cli_credentials.py
-```
-This extracts your active access and refresh tokens, extracts your Google email, and writes or appends the account to `credentials.json`.
+1. **Zero-Configuration Refreshes**: Antigravity CLI stores OAuth session tokens in the macOS Keychain (`service: gemini`, `account: antigravity`) under Google's official public desktop client ID. The proxy automatically recognizes and refreshes these tokens using built-in public desktop credentials, so **no Google Cloud Console OAuth setup or `.env` file is required**.
+2. **Run the automated import**:
+   ```bash
+   uv run python scripts/import_cli_credentials.py
+   # or: .venv/bin/python scripts/import_cli_credentials.py
+   ```
+   This reads Keychain, parses token expiration, extracts your Google account email, auto-discovers your companion project ID, and writes or appends the account to `credentials.json`.
+3. **Multi-Account CLI Accumulation**:
+   To add multiple accounts from the CLI:
+   - Import Account 1: `uv run python scripts/import_cli_credentials.py`
+   - Log into Account 2 in your Antigravity CLI: `antigravity auth login`
+   - Import Account 2: `uv run python scripts/import_cli_credentials.py`
+   The script matches existing accounts by email and appends new ones into `credentials.json` without overwriting prior accounts.
 
-### Native Multi-Account Pool & Quota Failover
+### Native Multi-Account Pool & KV Cache Optimization
 You can pool multiple Google accounts with Cloud Code Assist subscriptions:
-- **Round-Robin Balancing**: Requests are distributed across all active pool accounts.
+- **Sticky Latch Strategy (`POOL_STRATEGY=sticky`, Default)**: Consecutive requests stay pinned to the active account indefinitely while healthy. This maximizes upstream **KV prompt cache hit rates** on Cloud Code Assist, preventing cold cache misses and reducing latency and cost. The proxy only switches accounts when the active account's quota runs out (`HTTP 429` / `403 RESOURCE_EXHAUSTED`). When a previously exhausted account completes its 10-minute cooldown, the proxy does not prematurely switch back; it remains on the current account until it too exhausts quota.
+- **Round-Robin Mode (`POOL_STRATEGY=round_robin`)**: Set this environment variable if you prefer cycling through active accounts evenly across all requests.
 - **Independent Token Refresh Locks**: Per-account `asyncio.Lock` ensures a token refresh on Account 1 never blocks requests on Account 2.
 - **Automatic 10-Minute Cooldown**: If an account hits `HTTP 429` or `403 RESOURCE_EXHAUSTED`, it is placed in a 10-minute cooldown window.
 - **In-Flight Transparent Failover**: Non-streaming and streaming requests failover to the next healthy account in the pool before returning errors to the client.
-- **Adding Accounts**: Visit `http://localhost:8000/login` in your browser and click **"Add Another Google Account"**.
-
+- **Adding Accounts**: Visit `http://localhost:8000/login` in your browser and click **"Add Another Google Account"**, or import sequentially via `scripts/import_cli_credentials.py`.
 ### Credentials Storage & Environment Variables
 Credentials can be loaded from file or environment variables:
 

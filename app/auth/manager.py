@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import time
 from typing import Optional, List, Dict, Set, Any
 from app.auth.storage import CredentialStorage, Credentials
@@ -8,12 +9,14 @@ from app.auth.oauth import refresh_access_token
 logger = logging.getLogger(__name__)
 
 class AuthManager:
-    def __init__(self, credentials_path: str):
+    def __init__(self, credentials_path: str, pool_strategy: Optional[str] = None):
         self.storage = CredentialStorage(credentials_path)
+        self.pool_strategy = (pool_strategy or os.getenv("POOL_STRATEGY", "sticky")).lower()
         self._accounts: List[Credentials] = []
         self._locks: Dict[str, asyncio.Lock] = {}
         self._cooldowns: Dict[str, float] = {}
         self._round_robin_idx: int = 0
+        self._sticky_account_idx: int = 0
         self._pool_lock = asyncio.Lock()
         self._initialized: bool = False
 
@@ -79,11 +82,20 @@ class AuthManager:
                 selected = soonest_acc
             else:
                 raise RuntimeError("All Antigravity accounts in pool are quota-exhausted")
-        else:
+        elif self.pool_strategy == "round_robin":
             idx = self._round_robin_idx % len(active_accounts)
             selected = active_accounts[idx]
             self._round_robin_idx = (idx + 1) % len(active_accounts)
-
+        else:
+            current_sticky = self._accounts[self._sticky_account_idx % len(self._accounts)]
+            if current_sticky in active_accounts:
+                selected = current_sticky
+            else:
+                selected = active_accounts[0]
+                try:
+                    self._sticky_account_idx = self._accounts.index(selected)
+                except ValueError:
+                    self._sticky_account_idx = 0
         if not selected.is_expired():
             return selected
 

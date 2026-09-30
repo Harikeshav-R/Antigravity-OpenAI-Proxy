@@ -9,7 +9,7 @@ from app.routes.auth_routes import router as auth_router
 
 def create_app() -> FastAPI:
     config = ProxyConfig()
-    auth_manager = AuthManager(config.credentials_path)
+    auth_manager = AuthManager(config.credentials_path, pool_strategy=config.pool_strategy)
     cca_client = CloudCodeAssistClient(config)
 
     app = FastAPI(title="Antigravity OpenAI Proxy")

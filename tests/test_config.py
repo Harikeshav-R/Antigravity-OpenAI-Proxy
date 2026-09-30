@@ -61,3 +61,9 @@ def test_default_config_paths():
     assert config.sandbox_endpoint == "https://daily-cloudcode-pa.sandbox.googleapis.com"
     assert config.port == 8000
     assert "antigravity/hub/2.8.0" in config.user_agent
+    assert config.pool_strategy == "sticky"
+
+def test_config_pool_strategy_env(monkeypatch):
+    monkeypatch.setenv("POOL_STRATEGY", "ROUND_ROBIN")
+    config = ProxyConfig()
+    assert config.pool_strategy == "round_robin"

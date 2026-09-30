@@ -123,3 +123,54 @@ async def test_discover_project_id_prefers_env(monkeypatch):
     monkeypatch.setenv("ANTIGRAVITY_PROJECT_ID", "my-env-project")
     proj = await discover_project_id("test_token")
     assert proj == "my-env-project"
+
+@pytest.mark.asyncio
+async def test_refresh_access_token_uses_default_antigravity_client_when_unset(monkeypatch):
+    import httpx
+    from app.auth.oauth import refresh_access_token, ANTIGRAVITY_CLIENT_ID, ANTIGRAVITY_CLIENT_SECRET
+    monkeypatch.delenv("GOOGLE_CLIENT_ID", raising=False)
+    monkeypatch.delenv("google_client_id", raising=False)
+    monkeypatch.delenv("GOOGLE_CLIENT_SECRET", raising=False)
+    monkeypatch.delenv("google_client_secret", raising=False)
+
+    captured_data = {}
+    def handler(request: httpx.Request) -> httpx.Response:
+        from urllib.parse import parse_qs
+        captured_data.update(parse_qs(request.content.decode()))
+        return httpx.Response(200, json={"access_token": "refreshed_abc", "expires_in": 3600})
+
+    transport = httpx.MockTransport(handler)
+    orig = httpx.AsyncClient
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: orig(transport=transport))
+
+    token, expires_at = await refresh_access_token("test_refresh_token")
+    assert token == "refreshed_abc"
+    assert captured_data.get("client_id") == [ANTIGRAVITY_CLIENT_ID]
+    assert captured_data.get("client_secret") == [ANTIGRAVITY_CLIENT_SECRET]
+
+@pytest.mark.asyncio
+async def test_refresh_access_token_fallback_when_custom_client_unauthorized(monkeypatch):
+    import httpx
+    from app.auth.oauth import refresh_access_token, ANTIGRAVITY_CLIENT_ID, ANTIGRAVITY_CLIENT_SECRET
+    monkeypatch.setenv("GOOGLE_CLIENT_ID", "custom-client-id")
+    monkeypatch.setenv("GOOGLE_CLIENT_SECRET", "custom-secret")
+
+    attempts = []
+    def handler(request: httpx.Request) -> httpx.Response:
+        from urllib.parse import parse_qs
+        data = parse_qs(request.content.decode())
+        cid = data.get("client_id", [""])[0]
+        attempts.append(cid)
+        if cid == "custom-client-id":
+            return httpx.Response(401, json={"error": "unauthorized_client", "error_description": "Unauthorized"})
+        elif cid == ANTIGRAVITY_CLIENT_ID:
+            return httpx.Response(200, json={"access_token": "fallback_token", "expires_in": 1800})
+        return httpx.Response(400, json={"error": "bad_request"})
+
+    transport = httpx.MockTransport(handler)
+    orig = httpx.AsyncClient
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: orig(transport=transport))
+
+    token, expires_at = await refresh_access_token("test_refresh_token")
+    assert token == "fallback_token"
+    assert attempts == ["custom-client-id", ANTIGRAVITY_CLIENT_ID]

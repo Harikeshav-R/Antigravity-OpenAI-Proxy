@@ -6,6 +6,50 @@ from app.auth.storage import Credentials, CredentialStorage
 from app.auth.manager import AuthManager
 
 @pytest.mark.asyncio
+async def test_sticky_latch_rotation_default(tmp_path):
+    cred_file = tmp_path / "credentials.json"
+    accounts_data = [
+        {"email": "acc1@example.com", "access_token": "tok1", "refresh_token": "ref1", "project_id": "proj1", "expires_at": int(time.time() * 1000) + 3600000},
+        {"email": "acc2@example.com", "access_token": "tok2", "refresh_token": "ref2", "project_id": "proj2", "expires_at": int(time.time() * 1000) + 3600000},
+        {"email": "acc3@example.com", "access_token": "tok3", "refresh_token": "ref3", "project_id": "proj3", "expires_at": int(time.time() * 1000) + 3600000},
+    ]
+    cred_file.write_text(json.dumps(accounts_data))
+
+    manager = AuthManager(credentials_path=str(cred_file))  # default sticky
+
+    # Sequential requests must reuse acc1 for KV cache retention
+    first = await manager.get_next_available_credentials()
+    second = await manager.get_next_available_credentials()
+    third = await manager.get_next_available_credentials()
+
+    assert first.email == "acc1@example.com"
+    assert second.email == "acc1@example.com"
+    assert third.email == "acc1@example.com"
+
+    # Mark acc1 as exhausted
+    manager.mark_quota_exhausted(first, cooldown_seconds=1)
+
+    # Next request switches and latches onto acc2
+    fourth = await manager.get_next_available_credentials()
+    fifth = await manager.get_next_available_credentials()
+    assert fourth.email == "acc2@example.com"
+    assert fifth.email == "acc2@example.com"
+
+    # Wait for acc1 cooldown to expire
+    await asyncio.sleep(1.05)
+
+    # In sticky mode, must STAY on acc2 even though acc1 is now recovered
+    sixth = await manager.get_next_available_credentials()
+    assert sixth.email == "acc2@example.com"
+
+    # Mark acc2 as exhausted
+    manager.mark_quota_exhausted(fourth, cooldown_seconds=600)
+
+    # Switches to acc3 (or recovered acc1)
+    seventh = await manager.get_next_available_credentials()
+    assert seventh.email in {"acc3@example.com", "acc1@example.com"}
+
+@pytest.mark.asyncio
 async def test_round_robin_rotation(tmp_path):
     cred_file = tmp_path / "credentials.json"
     accounts_data = [
@@ -15,7 +59,7 @@ async def test_round_robin_rotation(tmp_path):
     ]
     cred_file.write_text(json.dumps(accounts_data))
 
-    manager = AuthManager(credentials_path=str(cred_file))
+    manager = AuthManager(credentials_path=str(cred_file), pool_strategy="round_robin")
     
     first = await manager.get_next_available_credentials()
     second = await manager.get_next_available_credentials()
@@ -26,7 +70,6 @@ async def test_round_robin_rotation(tmp_path):
     assert second.email == "acc2@example.com"
     assert third.email == "acc3@example.com"
     assert fourth.email == "acc1@example.com"
-
 @pytest.mark.asyncio
 async def test_quota_cooldown_skips_exhausted_account(tmp_path):
     cred_file = tmp_path / "credentials.json"
