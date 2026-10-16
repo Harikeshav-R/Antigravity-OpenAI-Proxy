@@ -79,7 +79,7 @@ async def chat_completions(request: Request):
                     return
 
                 except UpstreamQuotaExhaustedError as e:
-                    acc_id = creds.email or creds.project_id or (creds.refresh_token[:8] if creds.refresh_token else "")
+                    acc_id = auth_manager.account_id(creds)
                     tried_ids.add(acc_id)
                     auth_manager.mark_quota_exhausted(creds)
                     logger.warning("Account %s quota exhausted. Failing over to next pool account.", creds.email or creds.project_id)
@@ -156,7 +156,7 @@ async def chat_completions(request: Request):
             return JSONResponse(content=resp_obj)
 
         except UpstreamQuotaExhaustedError:
-            acc_id = creds.email or creds.project_id or (creds.refresh_token[:8] if creds.refresh_token else "")
+            acc_id = auth_manager.account_id(creds)
             tried_ids.add(acc_id)
             auth_manager.mark_quota_exhausted(creds)
             logger.warning("Account %s quota exhausted. Failing over to next pool account.", creds.email or creds.project_id)

@@ -73,8 +73,11 @@ def parse_cca_chunk(
     chunk: Dict[str, Any],
     leak_filter: PlanningLeakFilter
 ) -> Tuple[Optional[str], Optional[str], Optional[List[Dict[str, Any]]], Optional[str], Optional[Dict[str, int]], Optional[str]]:
-    candidate = chunk.get("response", {}).get("candidates", [{}])[0]
-    parts = candidate.get("content", {}).get("parts", [])
+    resp_obj = chunk.get("response") if isinstance(chunk.get("response"), dict) else chunk
+    candidates = resp_obj.get("candidates") if isinstance(resp_obj, dict) else None
+    candidate = (candidates or [{}])[0]
+    content_obj = candidate.get("content")
+    parts = content_obj.get("parts", []) if isinstance(content_obj, dict) else []
 
     content_delta: Optional[str] = None
     reasoning_delta: Optional[str] = None
@@ -86,9 +89,18 @@ def parse_cca_chunk(
         if sig:
             thought_sig = sig
 
+        is_thought = False
+        thought_text = ""
         if "thought" in part:
             thought_val = part.get("thought")
-            thought_text = part.get("text", "") if not isinstance(thought_val, str) else thought_val
+            if thought_val is True:
+                is_thought = True
+                thought_text = part.get("text", "")
+            elif isinstance(thought_val, str):
+                is_thought = True
+                thought_text = thought_val
+
+        if is_thought:
             reasoning_delta = (reasoning_delta or "") + thought_text
         elif "text" in part:
             filtered = leak_filter.filter_text(part["text"])
@@ -124,7 +136,7 @@ def parse_cca_chunk(
         else:
             finish_reason = raw_finish.lower()
     usage: Optional[Dict[str, int]] = None
-    usage_meta = chunk.get("response", {}).get("usageMetadata")
+    usage_meta = resp_obj.get("usageMetadata") if isinstance(resp_obj, dict) else None
     if usage_meta:
         prompt_tokens = usage_meta.get("promptTokenCount", 0)
         completion_tokens = usage_meta.get("candidatesTokenCount", 0)

@@ -95,3 +95,45 @@ def test_wire_model_profile_gpt_oss_and_gemini_36():
     p_36 = get_wire_model_profile("gemini-3.6-flash")
     assert p_36.wire_model_id == "gemini-3.6-flash-high"
     assert p_36.model_enum == "MODEL_PLACEHOLDER_M71"
+
+def test_search_config_defaults():
+    config = ProxyConfig()
+    assert config.search_model == "gemini-3.8-flash"
+    assert config.search_api_key == ""
+    assert config.search_timeout_seconds == 50.0
+
+def test_search_config_custom_env(monkeypatch):
+    monkeypatch.setenv("SEARCH_MODEL", "gemini-2.5-flash")
+    monkeypatch.setenv("SEARCH_API_KEY", "secret-test-key")
+    monkeypatch.setenv("SEARCH_TIMEOUT_SECONDS", "30.5")
+    config = ProxyConfig()
+    assert config.search_model == "gemini-2.5-flash"
+    assert config.search_api_key == "secret-test-key"
+    assert config.search_timeout_seconds == 30.5
+
+def test_search_timeout_validation(monkeypatch):
+    import pytest
+    # Zero rejected
+    monkeypatch.setenv("SEARCH_TIMEOUT_SECONDS", "0")
+    with pytest.raises(ValueError, match="SEARCH_TIMEOUT_SECONDS must be greater than 0 and at most 55"):
+        ProxyConfig()
+
+    # Negative rejected
+    monkeypatch.setenv("SEARCH_TIMEOUT_SECONDS", "-10")
+    with pytest.raises(ValueError, match="SEARCH_TIMEOUT_SECONDS must be greater than 0 and at most 55"):
+        ProxyConfig()
+
+    # Greater than 55 rejected
+    monkeypatch.setenv("SEARCH_TIMEOUT_SECONDS", "55.1")
+    with pytest.raises(ValueError, match="SEARCH_TIMEOUT_SECONDS must be greater than 0 and at most 55"):
+        ProxyConfig()
+
+    # Non-numeric rejected
+    monkeypatch.setenv("SEARCH_TIMEOUT_SECONDS", "abc")
+    with pytest.raises(ValueError, match="SEARCH_TIMEOUT_SECONDS must be greater than 0 and at most 55"):
+        ProxyConfig()
+
+    # Exactly 55 accepted
+    monkeypatch.setenv("SEARCH_TIMEOUT_SECONDS", "55")
+    config = ProxyConfig()
+    assert config.search_timeout_seconds == 55.0

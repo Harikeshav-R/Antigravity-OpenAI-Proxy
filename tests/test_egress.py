@@ -137,3 +137,89 @@ def test_parse_cca_chunk_parallel_tool_calls_indices():
     assert len(tool_calls) == 2
     assert tool_calls[0]["index"] == 0
     assert tool_calls[1]["index"] == 1
+
+def test_parse_cca_chunk_empty_candidates():
+    chunk = {
+        "response": {
+            "candidates": [],
+            "usageMetadata": {
+                "promptTokenCount": 12,
+                "candidatesTokenCount": 34,
+                "totalTokenCount": 46,
+            }
+        }
+    }
+    filter_leak = PlanningLeakFilter(set())
+    content, reasoning, tool_calls, finish, usage, thought_sig = parse_cca_chunk(chunk, filter_leak)
+    assert content is None
+    assert reasoning is None
+    assert tool_calls is None
+    assert finish is None
+    assert usage == {"prompt_tokens": 12, "completion_tokens": 34, "total_tokens": 46}
+    assert thought_sig is None
+
+def test_parse_cca_chunk_unwrapped_response():
+    chunk = {
+        "candidates": [{
+            "content": {
+                "parts": [{"text": "unwrapped response text"}]
+            },
+            "finishReason": "STOP"
+        }],
+        "usageMetadata": {
+            "promptTokenCount": 5,
+            "candidatesTokenCount": 5,
+            "totalTokenCount": 10,
+        }
+    }
+    filter_leak = PlanningLeakFilter(set())
+    content, reasoning, tool_calls, finish, usage, thought_sig = parse_cca_chunk(chunk, filter_leak)
+    assert content == "unwrapped response text"
+    assert reasoning is None
+    assert finish == "stop"
+    assert usage == {"prompt_tokens": 5, "completion_tokens": 5, "total_tokens": 10}
+
+def test_parse_cca_chunk_thought_discriminator_boolean_false():
+    chunk = {
+        "response": {
+            "candidates": [{
+                "content": {
+                    "parts": [{"thought": False, "text": "visible answer text"}]
+                }
+            }]
+        }
+    }
+    filter_leak = PlanningLeakFilter(set())
+    content, reasoning, _, _, _, _ = parse_cca_chunk(chunk, filter_leak)
+    assert content == "visible answer text"
+    assert reasoning is None
+
+def test_parse_cca_chunk_thought_discriminator_boolean_true():
+    chunk = {
+        "response": {
+            "candidates": [{
+                "content": {
+                    "parts": [{"thought": True, "text": "hidden reasoning text"}]
+                }
+            }]
+        }
+    }
+    filter_leak = PlanningLeakFilter(set())
+    content, reasoning, _, _, _, _ = parse_cca_chunk(chunk, filter_leak)
+    assert content is None
+    assert reasoning == "hidden reasoning text"
+
+def test_parse_cca_chunk_thought_discriminator_string():
+    chunk = {
+        "response": {
+            "candidates": [{
+                "content": {
+                    "parts": [{"thought": "legacy thought string"}]
+                }
+            }]
+        }
+    }
+    filter_leak = PlanningLeakFilter(set())
+    content, reasoning, _, _, _, _ = parse_cca_chunk(chunk, filter_leak)
+    assert content is None
+    assert reasoning == "legacy thought string"

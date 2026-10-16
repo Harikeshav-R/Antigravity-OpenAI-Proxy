@@ -20,7 +20,7 @@ class AuthManager:
         self._pool_lock = asyncio.Lock()
         self._initialized: bool = False
 
-    def _account_id(self, acc: Credentials) -> str:
+    def account_id(self, acc: Credentials) -> str:
         return acc.email or acc.project_id or (acc.refresh_token[:8] if acc.refresh_token else "")
 
     def _get_lock(self, acc_id: str) -> asyncio.Lock:
@@ -66,19 +66,19 @@ class AuthManager:
 
         eligible = [
             acc for acc in self._accounts
-            if self._account_id(acc) not in exclude
+            if self.account_id(acc) not in exclude
         ]
         if not eligible:
             raise RuntimeError("All Antigravity accounts in pool are excluded")
 
         active_accounts = [
             acc for acc in eligible
-            if now >= self._cooldowns.get(self._account_id(acc), 0.0)
+            if now >= self._cooldowns.get(self.account_id(acc), 0.0)
         ]
 
         if not active_accounts:
-            soonest_acc = min(eligible, key=lambda a: self._cooldowns.get(self._account_id(a), 0.0))
-            if now >= self._cooldowns.get(self._account_id(soonest_acc), 0.0):
+            soonest_acc = min(eligible, key=lambda a: self._cooldowns.get(self.account_id(a), 0.0))
+            if now >= self._cooldowns.get(self.account_id(soonest_acc), 0.0):
                 selected = soonest_acc
             else:
                 raise RuntimeError("All Antigravity accounts in pool are quota-exhausted")
@@ -99,7 +99,7 @@ class AuthManager:
         if not selected.is_expired():
             return selected
 
-        acc_id = self._account_id(selected)
+        acc_id = self.account_id(selected)
         lock = self._get_lock(acc_id)
         async with lock:
             if not selected.is_expired():
@@ -117,7 +117,7 @@ class AuthManager:
         return await self.get_next_available_credentials()
 
     def mark_quota_exhausted(self, account: Credentials, cooldown_seconds: int = 600) -> None:
-        acc_id = self._account_id(account)
+        acc_id = self.account_id(account)
         self._cooldowns[acc_id] = time.time() + cooldown_seconds
 
     def add_or_update_account(self, account: Credentials) -> None:
@@ -146,12 +146,12 @@ class AuthManager:
         for idx, acc in enumerate(self._accounts):
             if (acc.email and acc.email.lower() == identifier.lower()) or \
                (acc.project_id and acc.project_id == identifier) or \
-               (self._account_id(acc) == identifier):
+               (self.account_id(acc) == identifier):
                 target_idx = idx
                 break
         if target_idx >= 0:
             removed = self._accounts.pop(target_idx)
-            rem_id = self._account_id(removed)
+            rem_id = self.account_id(removed)
             self._locks.pop(rem_id, None)
             self._cooldowns.pop(rem_id, None)
             self.storage.save_all(self._accounts)
@@ -163,7 +163,7 @@ class AuthManager:
         now = time.time()
         status_list = []
         for acc in self._accounts:
-            acc_id = self._account_id(acc)
+            acc_id = self.account_id(acc)
             cooldown_until = self._cooldowns.get(acc_id, 0.0)
             is_cooling = now < cooldown_until
             rem = max(0, int(cooldown_until - now)) if is_cooling else 0

@@ -27,6 +27,7 @@ Provides transparent access to top-tier frontier models—including **Claude 3.7
   - [Chat Completions](#post-v1chatcompletions)
   - [Status & Account Pool](#get-status)
   - [Account Management API](#get-v1accounts)
+  - [Grounded Web Search (Tavily-Compatible)](#post-v1search)
 - [Quick Start](#quick-start)
   - [1. Local Background Service (Recommended on macOS)](#1-local-background-service-recommended-on-macos)
   - [2. Standalone Docker](#2-standalone-docker)
@@ -298,6 +299,34 @@ List all configured accounts in the pool with cooldown and expiry states.
 
 ### `DELETE /v1/accounts/{identifier}`
 Remove an account from the pool by email or project ID.
+
+### `POST /v1/search`
+Tavily-compatible web search endpoint powered by Google Search grounding on Gemini models.
+
+**Authentication**: Requires `Authorization: Bearer <SEARCH_API_KEY>` (set via `SEARCH_API_KEY` in environment).
+
+**Supported Parameters**:
+- `query` (string, required): Search query string.
+- `max_results` (integer, optional, default: 5): Maximum number of search results to return.
+- `include_images` (boolean, optional, default: false)
+- `include_raw_content` (boolean, optional, default: false)
+
+**Response**:
+```json
+{
+  "query": "site:python.org Python release announcements",
+  "results": [
+    {
+      "title": "Python Release Python 3.12.0 | Python.org",
+      "url": "https://www.python.org/downloads/release/python-3120/",
+      "content": "Grounded answer excerpt (model-generated, not page text): ...",
+      "score": 0.95
+    }
+  ],
+  "search_queries": ["site:python.org Python release announcements"],
+  "model": "gemini-3.8-flash"
+}
+```
 
 ---
 

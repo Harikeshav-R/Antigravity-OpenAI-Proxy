@@ -89,3 +89,14 @@ class ProxyConfig:
         self.port = int(os.getenv("PORT", "8000"))
         self.user_agent = "antigravity/hub/2.8.0 (aidev_client; os_type=darwin; arch=arm64; cl=963137146)"
         self.pool_strategy = os.getenv("POOL_STRATEGY", "sticky").lower()
+        self.search_model = os.getenv("SEARCH_MODEL", "gemini-3.8-flash")
+        self.search_api_key = os.getenv("SEARCH_API_KEY", "")
+        raw_timeout = os.getenv("SEARCH_TIMEOUT_SECONDS", "50.0")
+        try:
+            timeout_val = float(raw_timeout)
+        except (ValueError, TypeError):
+            raise ValueError("SEARCH_TIMEOUT_SECONDS must be greater than 0 and at most 55")
+        import math
+        if not math.isfinite(timeout_val) or not (0 < timeout_val <= 55):
+            raise ValueError("SEARCH_TIMEOUT_SECONDS must be greater than 0 and at most 55")
+        self.search_timeout_seconds = timeout_val

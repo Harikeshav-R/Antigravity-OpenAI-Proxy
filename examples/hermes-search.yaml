@@ -1,0 +1,21 @@
+# Hermes Agent Configuration Fragment for Antigravity Grounded Search
+#
+# Merge this fragment into your Hermes configuration (~/.hermes/config.yaml or active profile).
+#
+# NOTES:
+# - search_backend: tavily routes standard `web_search` calls through the Tavily adapter,
+#   which connects to TAVILY_BASE_URL (http://127.0.0.1:8000/v1) using TAVILY_API_KEY.
+# - Do NOT set shared `web.backend: tavily` just for search, as that would also route
+#   `web_extract` to the proxy, which only implements /v1/search. Keep `extract_backend`
+#   on a separate backend (e.g., readability, trafilatura, or direct fetch).
+# - keyless_fallback and keyless_rescue are disabled (false) so search failures do not
+#   silently fall back to third-party search vendors.
+# - provider_tier.tavily: paid forces Hermes into keyed mode (using TAVILY_API_KEY)
+#   without billing from Tavily.
+
+web:
+  search_backend: tavily
+  keyless_fallback: false
+  keyless_rescue: false
+  provider_tier:
+    tavily: paid

@@ -10,6 +10,9 @@ services:
     environment:
       - CREDENTIALS_PATH=/data/credentials.json
       - PORT=8000
+      - SEARCH_MODEL=${SEARCH_MODEL:-gemini-3.8-flash}
+      - SEARCH_TIMEOUT_SECONDS=${SEARCH_TIMEOUT_SECONDS:-50}
+      - SEARCH_API_KEY=${SEARCH_API_KEY:-}
 
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
