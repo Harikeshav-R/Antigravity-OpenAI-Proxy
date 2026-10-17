@@ -6,6 +6,7 @@ import uuid
 from typing import Dict, Any, List
 from app.config import get_wire_model_profile
 from app.translator.schema import normalize_schema_for_cca
+from app.translator.signatures import get_cached_thought_signature
 
 logger = logging.getLogger(__name__)
 
@@ -71,16 +72,18 @@ def translate_openai_request(req: Dict[str, Any], project_id: str) -> Dict[str, 
                 if tc.get("id"):
                     part_item["functionCall"]["id"] = tc.get("id")
 
-                # Preserve thoughtSignature
+                # Preserve or recover thoughtSignature
+                tc_id = tc.get("id")
+                fn_name = fn.get("name")
                 sig = (
                     tc.get("thought_signature") or
                     tc.get("thoughtSignature") or
                     msg.get("thought_signature") or
-                    msg.get("thoughtSignature")
+                    msg.get("thoughtSignature") or
+                    get_cached_thought_signature(tc_id, fn_name)
                 )
                 if sig:
                     part_item["thoughtSignature"] = sig
-
                 parts.append(part_item)
 
             contents.append({"role": "model", "parts": parts})
@@ -139,15 +142,19 @@ def translate_openai_request(req: Dict[str, Any], project_id: str) -> Dict[str, 
     if tools:
         declarations = []
         for t in tools:
-            fn = t.get("function", {})
-            raw_params = fn.get("parameters", {"type": "object", "properties": {}})
-            norm_params = normalize_schema_for_cca(raw_params)
+            fn = t.get("function") if isinstance(t.get("function"), dict) else t
+            fn_name = fn.get("name") or t.get("name")
+            if not fn_name:
+                continue
+            raw_params = fn.get("parameters") or t.get("parameters") or {"type": "object", "properties": {}}
+            norm_params = normalize_schema_for_cca(raw_params, is_claude=profile.is_claude)
             declarations.append({
-                "name": fn.get("name"),
-                "description": fn.get("description", ""),
+                "name": fn_name,
+                "description": fn.get("description") or t.get("description", ""),
                 "parameters": norm_params
             })
-        inner_request["tools"] = [{"functionDeclarations": declarations}]
+        if declarations:
+            inner_request["tools"] = [{"functionDeclarations": declarations}]
 
     if profile.is_claude:
         inner_request["toolConfig"] = {"functionCallingConfig": {"mode": "VALIDATED"}}

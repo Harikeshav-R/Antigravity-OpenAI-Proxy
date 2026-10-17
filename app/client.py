@@ -134,6 +134,7 @@ class CloudCodeAssistClient:
                     leak_filter = PlanningLeakFilter(tool_names or set())
                     received_meaningful = False
                     buffered_chunks = []
+                    current_thought_sig = None
 
                     client_kwargs: Dict[str, Any] = {"timeout": 300.0}
                     if transport:
@@ -211,6 +212,14 @@ class CloudCodeAssistClient:
                                     )
 
                                 content, reasoning, tool_calls, finish, usage, thought_sig = parse_cca_chunk(raw_chunk, leak_filter)
+                                if thought_sig:
+                                    current_thought_sig = thought_sig
+
+                                if tool_calls and current_thought_sig:
+                                    for tc in tool_calls:
+                                        if not tc.get("thought_signature"):
+                                            tc["thought_signature"] = current_thought_sig
+
                                 candidate = (candidates or [{}])[0]
                                 grounding_meta = candidate.get("groundingMetadata")
                                 model_version = resp_obj.get("modelVersion") if isinstance(resp_obj, dict) else None
@@ -232,7 +241,7 @@ class CloudCodeAssistClient:
                                     "tool_call_delta": tool_calls,
                                     "finish_reason": finish,
                                     "usage": usage,
-                                    "thought_signature": thought_sig,
+                                    "thought_signature": thought_sig or current_thought_sig,
                                 }
                                 if grounding_meta is not None:
                                     chunk_dict["grounding_metadata"] = grounding_meta

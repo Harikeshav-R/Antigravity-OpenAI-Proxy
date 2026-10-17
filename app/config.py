@@ -37,36 +37,36 @@ ANTIGRAVITY_PROFILES: Dict[str, WireModelProfile] = {
     "gemini-3.8-flash-medium": WireModelProfile("gemini-3.8-flash-medium", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M319"),
     "gemini-3.8-flash-low": WireModelProfile("gemini-3.8-flash-low", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M320"),
 
-    # Gemini 3.7 Flash (Effort variants)
-    "gemini-3.7-flash": WireModelProfile("gemini-3.7-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M298"),
-    "gemini-3.7-flash-high": WireModelProfile("gemini-3.7-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M298"),
-    "gemini-3.7-flash-medium": WireModelProfile("gemini-3.7-flash-medium", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M299"),
-    "gemini-3.7-flash-low": WireModelProfile("gemini-3.7-flash-low", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M300"),
+    # Gemini 3.7 Flash (Aliases to active 3.8 variants)
+    "gemini-3.7-flash": WireModelProfile("gemini-3.8-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M318"),
+    "gemini-3.7-flash-high": WireModelProfile("gemini-3.8-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M318"),
+    "gemini-3.7-flash-medium": WireModelProfile("gemini-3.8-flash-medium", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M319"),
+    "gemini-3.7-flash-low": WireModelProfile("gemini-3.8-flash-low", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M320"),
 
-    # Gemini 3.6 Flash (Effort variants)
-    "gemini-3.6-flash": WireModelProfile("gemini-3.6-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M71"),
-    "gemini-3.6-flash-high": WireModelProfile("gemini-3.6-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M71"),
-    "gemini-3.6-flash-medium": WireModelProfile("gemini-3.6-flash-medium", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M72"),
-    "gemini-3.6-flash-low": WireModelProfile("gemini-3.6-flash-low", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M73"),
+    # Gemini 3.6 Flash (Aliases to active 3.8 variants)
+    "gemini-3.6-flash": WireModelProfile("gemini-3.8-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M318"),
+    "gemini-3.6-flash-high": WireModelProfile("gemini-3.8-flash-high", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M318"),
+    "gemini-3.6-flash-medium": WireModelProfile("gemini-3.8-flash-medium", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M319"),
+    "gemini-3.6-flash-low": WireModelProfile("gemini-3.8-flash-low", is_claude=False, max_output_tokens=65536, model_enum="MODEL_PLACEHOLDER_M320"),
 
-    # Gemini 3.1 Pro (Effort variants)
-    "gemini-3.1-pro": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),
-    "gemini-3-pro": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),
-    "gemini-3.1-pro-high": WireModelProfile("gemini-pro-agent", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M16"),
-    "gemini-3.1-pro-low": WireModelProfile("gemini-3.1-pro-low", is_claude=False, max_output_tokens=65535, model_enum="MODEL_PLACEHOLDER_M36"),
+    # Gemini 3 Pro (Effort variants)
+    "gemini-3.1-pro": WireModelProfile("gemini-3-pro-high", is_claude=False, max_output_tokens=65535),
+    "gemini-3-pro": WireModelProfile("gemini-3-pro-high", is_claude=False, max_output_tokens=65535),
+    "gemini-3.1-pro-high": WireModelProfile("gemini-3-pro-high", is_claude=False, max_output_tokens=65535),
+    "gemini-3.1-pro-low": WireModelProfile("gemini-3-pro-low", is_claude=False, max_output_tokens=65535),
 
     # GPT-OSS (Fixed thinking budget)
     "gpt-oss-120b": WireModelProfile("gpt-oss-120b-medium", is_claude=False, max_output_tokens=32768),
     "gpt-oss-120b-medium": WireModelProfile("gpt-oss-120b-medium", is_claude=False, max_output_tokens=32768),
 
     # Legacy / Flash Lite
-    "gemini-2.5-pro": WireModelProfile("gemini-2.5-pro", is_claude=False, max_output_tokens=65536),
+    "gemini-2.5-pro": WireModelProfile("gemini-3-pro-high", is_claude=False, max_output_tokens=65536),
     "gemini-2.5-flash": WireModelProfile("gemini-2.5-flash", is_claude=False, max_output_tokens=65536),
-    "gemini-2.0-flash": WireModelProfile("gemini-2.0-flash", is_claude=False, max_output_tokens=65536),
-    "gemini-2.0-flash-lite": WireModelProfile("gemini-2.0-flash-lite", is_claude=False, max_output_tokens=65536),
-    "gemini-2.0-pro-exp": WireModelProfile("gemini-2.0-pro-exp", is_claude=False, max_output_tokens=65536),
-    "gemini-1.5-pro": WireModelProfile("gemini-1.5-pro", is_claude=False, max_output_tokens=65536),
-    "gemini-1.5-flash": WireModelProfile("gemini-1.5-flash", is_claude=False, max_output_tokens=65536),
+    "gemini-2.0-flash": WireModelProfile("gemini-2.5-flash", is_claude=False, max_output_tokens=65536),
+    "gemini-2.0-flash-lite": WireModelProfile("gemini-2.5-flash", is_claude=False, max_output_tokens=65536),
+    "gemini-2.0-pro-exp": WireModelProfile("gemini-3-pro-high", is_claude=False, max_output_tokens=65536),
+    "gemini-1.5-pro": WireModelProfile("gemini-3-pro-high", is_claude=False, max_output_tokens=65536),
+    "gemini-1.5-flash": WireModelProfile("gemini-2.5-flash", is_claude=False, max_output_tokens=65536),
 }
 
 def get_wire_model_profile(model_name: str, reasoning_effort: Optional[str] = None) -> WireModelProfile:

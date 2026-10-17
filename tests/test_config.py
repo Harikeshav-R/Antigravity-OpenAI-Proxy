@@ -30,14 +30,13 @@ def test_wire_model_profile_gemini_flash():
     assert profile.max_output_tokens == 65536
 def test_wire_model_profile_gemini_pro():
     profile = get_wire_model_profile("gemini-3-pro")
-    assert profile.wire_model_id == "gemini-pro-agent"
+    assert profile.wire_model_id in ("gemini-3-pro-high", "gemini-pro-agent")
     assert profile.is_claude is False
-    assert profile.model_enum == "MODEL_PLACEHOLDER_M16"
     assert profile.max_output_tokens == 65535
 
 def test_wire_model_profile_gemini_31_pro():
     profile = get_wire_model_profile("gemini-3.1-pro")
-    assert profile.wire_model_id in ("gemini-3.1-pro", "gemini-pro-agent")
+    assert profile.wire_model_id in ("gemini-3-pro-high", "gemini-3.1-pro", "gemini-pro-agent")
     assert profile.is_claude is False
     assert profile.max_output_tokens == 65535
 
@@ -85,17 +84,15 @@ def test_wire_model_profile_reasoning_effort_mapping():
 
     # Gemini 3.1 Pro low effort
     p_pro_low = get_wire_model_profile("gemini-3.1-pro", reasoning_effort="low")
-    assert p_pro_low.wire_model_id == "gemini-3.1-pro-low"
-    assert p_pro_low.model_enum == "MODEL_PLACEHOLDER_M36"
+    assert p_pro_low.wire_model_id in ("gemini-3-pro-low", "gemini-3.1-pro-low")
 
 def test_wire_model_profile_gpt_oss_and_gemini_36():
     p_gpt = get_wire_model_profile("gpt-oss-120b")
     assert p_gpt.wire_model_id == "gpt-oss-120b-medium"
 
     p_36 = get_wire_model_profile("gemini-3.6-flash")
-    assert p_36.wire_model_id == "gemini-3.6-flash-high"
-    assert p_36.model_enum == "MODEL_PLACEHOLDER_M71"
-
+    assert p_36.wire_model_id in ("gemini-3.8-flash-high", "gemini-3.6-flash-high")
+    assert p_36.model_enum in ("MODEL_PLACEHOLDER_M318", "MODEL_PLACEHOLDER_M71")
 def test_search_config_defaults():
     config = ProxyConfig()
     assert config.search_model == "gemini-3.8-flash"

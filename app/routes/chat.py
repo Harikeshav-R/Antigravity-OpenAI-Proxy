@@ -8,6 +8,7 @@ from app.config import get_wire_model_profile
 from app.translator.ingress import translate_openai_request
 from app.translator.egress import format_openai_sse_chunk, build_openai_completion_response
 
+from app.translator.signatures import cache_thought_signature
 from app.client import UpstreamQuotaExhaustedError
 logger = logging.getLogger(__name__)
 
@@ -65,12 +66,20 @@ async def chat_completions(request: Request):
                         tool_names=tool_names
                     ):
                         emitted_first_chunk = True
+                        tc_delta = item.get("tool_call_delta")
+                        if tc_delta:
+                            for tc in tc_delta:
+                                cache_thought_signature(
+                                    tc.get("id"),
+                                    tc.get("function", {}).get("name"),
+                                    tc.get("thought_signature") or item.get("thought_signature")
+                                )
                         out = format_openai_sse_chunk(
                             chat_id=chat_id,
                             model=model_name,
                             content_delta=item.get("content_delta"),
                             reasoning_delta=item.get("reasoning_delta"),
-                            tool_call_delta=item.get("tool_call_delta"),
+                            tool_call_delta=tc_delta,
                             finish_reason=item.get("finish_reason"),
                             usage=item.get("usage")
                         )
@@ -138,12 +147,18 @@ async def chat_completions(request: Request):
                 if item.get("reasoning_delta"):
                     accumulated_reasoning += item["reasoning_delta"]
                 if item.get("tool_call_delta"):
-                    accumulated_tool_calls.extend(item["tool_call_delta"])
+                    tc_delta = item["tool_call_delta"]
+                    for tc in tc_delta:
+                        cache_thought_signature(
+                            tc.get("id"),
+                            tc.get("function", {}).get("name"),
+                            tc.get("thought_signature") or item.get("thought_signature")
+                        )
+                    accumulated_tool_calls.extend(tc_delta)
                 if item.get("finish_reason"):
                     finish_reason = item["finish_reason"]
                 if item.get("usage"):
                     final_usage = item["usage"]
-
             resp_obj = build_openai_completion_response(
                 chat_id=chat_id,
                 model=model_name,

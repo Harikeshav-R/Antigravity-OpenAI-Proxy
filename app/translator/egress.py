@@ -118,8 +118,9 @@ def parse_cca_chunk(
                     "arguments": json.dumps(fn.get("args", {}))
                 }
             }
-            if sig:
-                tc["thought_signature"] = sig
+            effective_sig = sig or thought_sig
+            if effective_sig:
+                tc["thought_signature"] = effective_sig
             if tool_calls is None:
                 tool_calls = []
             tool_calls.append(tc)
