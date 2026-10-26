@@ -24,7 +24,6 @@ services:
       - ./litellm-config.yaml:/app/config.yaml
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     environment:
-      - LITELLM_MASTER_KEY=sk-dummy
       - LITELLM_DANGEROUSLY_PERMIT_WEAK_OR_UNSET_MASTER_KEY=true
     depends_on:
       - antigravity-proxy

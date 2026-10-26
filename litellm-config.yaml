@@ -291,5 +291,4 @@ router_settings:
   cooldown_time: 300
 
 general_settings:
-  master_key: "sk-dummy"
   dangerously_permit_weak_or_unset_master_key: true

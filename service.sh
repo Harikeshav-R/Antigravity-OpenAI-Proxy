@@ -127,7 +127,7 @@ start_litellm() {
     local local_config="$DIR/litellm-config.local.yaml"
     sed "s|antigravity-proxy:8000|127.0.0.1:$PROXY_PORT|g" "$DIR/litellm-config.yaml" > "$local_config"
 
-    export LITELLM_MASTER_KEY="${LITELLM_MASTER_KEY:-sk-dummy}"
+    unset LITELLM_MASTER_KEY
     export LITELLM_DANGEROUSLY_PERMIT_WEAK_OR_UNSET_MASTER_KEY="true"
     echo "→ Starting LiteLLM on http://127.0.0.1:$LITELLM_PORT..."
     nohup "$LITELLM_BIN" --config "$local_config" --host 127.0.0.1 --port "$LITELLM_PORT" >> "$LITELLM_LOG" 2>&1 &
