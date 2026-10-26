@@ -243,95 +243,6 @@ model_list:
       max_tokens: 32768
       max_input_tokens: 131072
       max_output_tokens: 32768
-  - model_name: gemini-3.7-flash
-    litellm_params:
-      model: openai/gemini-3.7-flash
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.7-flash-high
-    litellm_params:
-      model: openai/gemini-3.7-flash-high
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.7-flash-medium
-    litellm_params:
-      model: openai/gemini-3.7-flash-medium
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.7-flash-low
-    litellm_params:
-      model: openai/gemini-3.7-flash-low
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.6-flash
-    litellm_params:
-      model: openai/gemini-3.6-flash
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.6-flash-high
-    litellm_params:
-      model: openai/gemini-3.6-flash-high
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.6-flash-medium
-    litellm_params:
-      model: openai/gemini-3.6-flash-medium
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.6-flash-low
-    litellm_params:
-      model: openai/gemini-3.6-flash-low
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.1-pro
-    litellm_params:
-      model: openai/gemini-3.1-pro
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.1-pro-high
-    litellm_params:
-      model: openai/gemini-3.1-pro-high
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3.1-pro-low
-    litellm_params:
-      model: openai/gemini-3.1-pro-low
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3-pro
-    litellm_params:
-      model: openai/gemini-3-pro
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gemini-3-flash
-    litellm_params:
-      model: openai/gemini-3-flash
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gpt-oss-120b
-    litellm_params:
-      model: openai/gpt-oss-120b
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
-
-  - model_name: gpt-oss-120b-medium
-    litellm_params:
-      model: openai/gpt-oss-120b-medium
-      api_base: http://antigravity-proxy:8000/v1
-      api_key: "dummy"
   - model_name: gemini-2.5-pro
     litellm_params:
       model: openai/gemini-2.5-pro
@@ -378,3 +289,7 @@ router_settings:
   routing_strategy: latency-based-routing
   allowed_fails: 2
   cooldown_time: 300
+
+general_settings:
+  master_key: "sk-dummy"
+  dangerously_permit_weak_or_unset_master_key: true
